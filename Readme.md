@@ -2,7 +2,7 @@
 
 <img width="220" src="https://cdn-icons-png.flaticon.com/512/1048/1048941.png" />
 
-# 🎭 AdamRMS
+# 🎭 PlataformaRentaTeatro
 
 ### Plataforma avanzada de gestión de renta para teatro, broadcast y producción audiovisual 🚀
 
@@ -192,7 +192,7 @@ El sistema fue desarrollado bajo una arquitectura moderna enfocada en:
 # 📂 Estructura del proyecto
 
 ```bash
-adam-rms/
+PlataformaRentaTeatro/
 │
 ├── src/
 │   ├── api/
@@ -239,7 +239,7 @@ adam-rms/
 ## 1️⃣ Clonar repositorio
 
 ```bash
-git clone https://github.com/adam-rms/adam-rms.git
+git clone https://github.com/isairey/PlataformaRentaTeatro.git
 ```
 
 ---
@@ -247,7 +247,7 @@ git clone https://github.com/adam-rms/adam-rms.git
 ## 2️⃣ Entrar al proyecto
 
 ```bash
-cd adam-rms
+cd PlataformaRentaTeatro
 ```
 
 ---
