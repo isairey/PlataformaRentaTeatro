@@ -1,119 +1,472 @@
-# AdamRMS
+<div align="center">
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/adam-rms/adam-rms)](https://github.com/adam-rms/adam-rms/releases)
-[![GitHub](https://img.shields.io/github/license/adam-rms/adam-rms)](LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/adam-rms/adam-rms)](https://github.com/adam-rms/adam-rms/issues)
-[![GitHub stars](https://img.shields.io/github/stars/adam-rms/adam-rms)](https://github.com/adam-rms/adam-rms/stargazers)
-[![GitHub contributors](https://img.shields.io/github/contributors/adam-rms/adam-rms)](https://github.com/adam-rms/adam-rms/graphs/contributors)
+<img width="220" src="https://cdn-icons-png.flaticon.com/512/1048/1048941.png" />
 
-AdamRMS is a free, open source advanced Rental Management System for Theatre, AV & Broadcast. It helps rental businesses track assets, manage projects, handle client relationships, and streamline billing — all from a single web-based platform.
+# 🎭 AdamRMS
 
-It is available as a [hosted solution](https://dash.adam-rms.com) or can be [self-hosted](https://adam-rms.com/self-hosting) using a pre-built Docker container.
+### Plataforma avanzada de gestión de renta para teatro, broadcast y producción audiovisual 🚀
 
-🌐 **Website**: [adam-rms.com](https://adam-rms.com) · 📖 **Docs**: [User Guide](https://adam-rms.com/docs/v1) · 📊 **Usage Stats**: [Telemetry Dashboard](https://telemetry.bithell.studio/projects/adam-rms)
+<p align="center">
+  <b>AdamRMS</b> es un sistema avanzado de Rental Management diseñado para empresas de producción, teatro, broadcast y renta de equipos audiovisuales, ofreciendo control centralizado de activos, proyectos, clientes y facturación.
+</p>
 
-## Key Features
+<p align="center">
+  <img src="https://img.shields.io/badge/Rental-Management-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white">
+  <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+  <img src="https://img.shields.io/badge/OpenSource-AGPL-success?style=for-the-badge">
+</p>
 
-- **Asset Management** — Track equipment with barcode/QR code scanning support, categorisation, and maintenance scheduling
-- **Project Management** — Plan and manage rental projects, assign assets, and track their dispatch status
-- **Client Management** — Maintain client records and associate them with projects
-- **Crew & Training** — Manage crew assignments and training records
-- **Multi-tenancy** — Support for multiple independent business instances on a single deployment
-- **CMS** — Built-in content management for custom dashboard pages
-- **Search** — Global search across projects, clients, locations, users, and CMS pages
-- **File Storage** — S3-compatible cloud storage for documents and images
-- **Billing Integration** — Stripe integration for subscription management
-- **Email Providers** — Pluggable email via SendGrid, Mailgun, Postmark, or SMTP
-- **API** — RESTful JSON API with [OpenAPI documentation](https://adam-rms.com/api)
+<p align="center">
+  <a href="#-acerca-del-proyecto">Acerca</a> •
+  <a href="#-características">Características</a> •
+  <a href="#-tecnologías-utilizadas">Tecnologías</a> •
+  <a href="#-instalación">Instalación</a> •
+  <a href="#-arquitectura">Arquitectura</a>
+</p>
 
-## Technology Stack
+</div>
 
-| Layer | Technology |
-|---|---|
-| **Backend** | PHP 8.3, Apache |
-| **Templating** | Twig v3.7 |
-| **Database** | MySQL 8.0 |
-| **File Storage** | AWS S3 (or S3-compatible) |
-| **Containerisation** | Docker (multi-arch: amd64, arm64) |
-| **Dependency Management** | Composer |
-| **Database Migrations** | Phinx |
-| **Website & Docs** | Docusaurus v3, React |
-| **CI/CD** | GitHub Actions |
-| **Error Tracking** | Sentry |
+---
 
-## Project Structure
+# 🌌 Acerca del proyecto
 
-```
-├── src/                    # Application source code
-│   ├── api/                #   RESTful API endpoints (JSON)
-│   ├── common/             #   Shared utilities & initialisation
-│   │   ├── head.php        #     Public page bootstrap (config, DB, Twig)
-│   │   ├── headSecure.php  #     Authenticated page bootstrap
-│   │   └── libs/           #     Auth, Config, Email, Search, Telemetry
-│   ├── assets/             #   Asset management module
-│   ├── project/            #   Project management module
-│   ├── clients/            #   Client management module
-│   ├── maintenance/        #   Maintenance & service tracking
-│   ├── instances/          #   Multi-tenant instance configuration
-│   ├── login/              #   Authentication (including OAuth)
-│   ├── server/             #   Server administration
-│   └── ...                 #   CMS, training, locations, etc.
+**AdamRMS** es una plataforma web avanzada de administración de renta profesional enfocada en empresas de:
+
+- 🎭 Teatro
+- 📺 Broadcast
+- 🎬 Producción audiovisual
+- 🎤 Eventos
+- 🎧 Audio profesional
+- 🎥 Producción multimedia
+
+La plataforma permite administrar:
+
+- 📦 Equipos y activos
+- 📊 Proyectos de producción
+- 👥 Clientes
+- 🧾 Facturación
+- 👨‍🔧 Crew técnico
+- 🏢 Multi-tenancy
+- ☁️ Archivos cloud
+- 🔐 Control administrativo
+
+El sistema fue desarrollado bajo una arquitectura moderna enfocada en:
+
+- ⚡ Escalabilidad
+- 🔒 Seguridad
+- 🌐 Gestión multiempresa
+- 🧠 Modularidad
+- 🚀 Alto rendimiento
+
+---
+
+# ✨ Características
+
+## 📦 Gestión de activos
+
+- 🏷️ Inventario de equipos
+- 🔍 Escaneo QR y códigos de barras
+- 🛠️ Programación de mantenimiento
+- 📍 Control de ubicaciones
+- 📊 Seguimiento de disponibilidad
+
+---
+
+## 🎬 Gestión de proyectos
+
+- 📋 Organización de proyectos
+- 🚚 Seguimiento de despacho
+- 🎭 Gestión de producciones
+- 📦 Asignación de equipos
+- 📈 Control operativo
+
+---
+
+## 👥 Gestión de clientes
+
+- 📇 Administración de clientes
+- 📄 Historial de proyectos
+- 📞 Información de contacto
+- 📊 Relación cliente-producción
+- 🧾 Gestión administrativa
+
+---
+
+## 👨‍🔧 Crew y entrenamiento
+
+- 👷 Gestión de personal
+- 📚 Registros de capacitación
+- 🛠️ Asignación de crew
+- 📋 Historial de entrenamiento
+- 🔐 Roles y permisos
+
+---
+
+## 🏢 Multi-tenancy
+
+- 🌐 Soporte multiempresa
+- 🔒 Separación de instancias
+- 👥 Usuarios compartidos
+- 🧠 Permisos independientes
+- 📊 Administración centralizada
+
+---
+
+## ☁️ Integraciones y cloud
+
+- ☁️ AWS S3
+- 📧 SendGrid / Mailgun / SMTP
+- 💳 Stripe Billing
+- 📡 API REST JSON
+- 📂 Gestión documental
+
+---
+
+# 🛠️ Tecnologías utilizadas
+
+## 🌐 Backend
+
+<p>
+  <img src="https://skillicons.dev/icons?i=php" />
+</p>
+
+- PHP 8.3
+- Apache
+- Arquitectura modular
+- API RESTful
+
+---
+
+## 🎨 Frontend
+
+<p>
+  <img src="https://skillicons.dev/icons?i=react,js" />
+</p>
+
+- Twig v3.7
+- React
+- Docusaurus
+- Componentes reutilizables
+
+---
+
+## 🗄️ Base de datos
+
+<p>
+  <img src="https://skillicons.dev/icons?i=mysql" />
+</p>
+
+- MySQL 8
+- Phinx Migrations
+- Soft Deletes
+- Persistencia relacional
+
+---
+
+## 🐳 DevOps
+
+<p>
+  <img src="https://skillicons.dev/icons?i=docker,github,git" />
+</p>
+
+- Docker Multi-Arch
+- GitHub Actions
+- CI/CD
+- Git
+- GitHub Packages
+
+---
+
+## ☁️ Servicios externos
+
+- AWS S3
+- Stripe
+- SendGrid
+- Mailgun
+- Postmark
+- Sentry
+
+---
+
+# 📂 Estructura del proyecto
+
+```bash
+adam-rms/
+│
+├── src/
+│   ├── api/
+│   ├── common/
+│   ├── assets/
+│   ├── project/
+│   ├── clients/
+│   ├── maintenance/
+│   ├── instances/
+│   ├── login/
+│   └── server/
+│
 ├── db/
-│   ├── migrations/         #   Phinx database migrations
-│   └── seeds/              #   Database seed data
-├── website/                # Docusaurus website & documentation
-│   ├── docs/               #   User guide, self-hosting, contributor docs
-│   └── src/                #   React components & custom pages
-├── .devcontainer/          # VS Code / Codespaces dev environment
-├── Dockerfile              # Production Docker image definition
-└── composer.json           # PHP dependencies
+│   ├── migrations/
+│   └── seeds/
+│
+├── website/
+│   ├── docs/
+│   └── src/
+│
+├── .devcontainer/
+├── Dockerfile
+├── composer.json
+│
+└── README.md
 ```
 
-## Architecture Overview
+---
 
-AdamRMS follows a server-rendered architecture with a JSON API layer:
+# ⚡ Instalación
 
-1. **Web Pages**: PHP controller → `headSecure.php` (auth & setup) → Twig template rendering
-2. **API Endpoints**: PHP handler → `apiHeadSecure.php` (auth) → JSON response via `finish()`
-3. **Multi-tenancy**: All data is scoped to an "instance" (business), and users can belong to multiple instances with different permissions in each
-4. **Permissions**: Two-tier system — *server permissions* (global admin actions) and *instance permissions* (per-business actions)
-5. **Database**: All entities use soft deletes (`*_deleted` flags) rather than hard deletes
+## 📋 Requisitos
 
-## Self-Hosting with Docker
+- Docker
+- PHP 8.3
+- MySQL 8
+- Composer
+- Git
 
-A maintained Docker image is published to GitHub Packages as [`adam-rms/adam-rms`](https://github.com/orgs/adam-rms/packages?repo_name=adam-rms), supporting both `linux/amd64` and `linux/arm64` platforms.
+---
 
-The container runs PHP 8.3 with Apache, exposes the application on port 80, and automatically runs database migrations on startup.
+# 🚀 Configuración del proyecto
 
-For full self-hosting instructions, including required environment variables and database setup, see the [self-hosting guide](https://adam-rms.com/self-hosting).
+## 1️⃣ Clonar repositorio
 
-> **License note**: AdamRMS is licensed under AGPLv3, which means any changes you make to the source code must be kept open source.
+```bash
+git clone https://github.com/adam-rms/adam-rms.git
+```
 
-## Contributing
+---
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?ref=main&repo=217888995)
+## 2️⃣ Entrar al proyecto
 
-Contributions are very welcome! Please see the [contributing guide](https://adam-rms.com/contributing) for full details.
+```bash
+cd adam-rms
+```
 
-### Development Environment
+---
 
-This repo includes a pre-configured [devcontainer](https://code.visualstudio.com/docs/devcontainers/tutorial) that sets up everything you need:
+## 3️⃣ Configurar entorno
 
-| Service | Port | Purpose |
+Instalar dependencias:
+
+```bash
+composer install
+```
+
+---
+
+## 4️⃣ Ejecutar Docker
+
+```bash
+docker compose up
+```
+
+---
+
+## 5️⃣ Acceder al sistema
+
+Aplicación disponible en:
+
+```bash
+http://localhost:8080
+```
+
+---
+
+# 🐳 Desarrollo con DevContainer
+
+## 🧠 Entorno listo para desarrollo
+
+El proyecto incluye un entorno preconfigurado compatible con:
+
+- GitHub Codespaces
+- VS Code Dev Containers
+
+---
+
+## ⚙️ Servicios disponibles
+
+| Servicio | Puerto | Descripción |
 |---|---|---|
-| PHP/Apache | 8080 | Application server |
-| MySQL 8.0 | 3306 | Database |
-| S3 Mock | 8081 | Local file storage emulation |
-| phpMyAdmin | 8082 | Database admin UI |
-| Mailpit | 8083 | Email testing (captures all outbound mail) |
+| PHP / Apache | 8080 | Aplicación |
+| MySQL | 3306 | Base de datos |
+| S3 Mock | 8081 | Simulación cloud |
+| phpMyAdmin | 8082 | Administración DB |
+| Mailpit | 8083 | Testing emails |
 
-**Getting started:**
+---
 
-1. **GitHub Codespaces** (recommended) — click the badge above to launch a ready-to-use cloud environment
-2. **VS Code** — clone the repo, open it in VS Code, and use the "Reopen in Container" command
+# 🧠 Arquitectura
 
-The devcontainer will automatically install dependencies, run database migrations, and seed test data.
+## 🏗️ Arquitectura del sistema
 
-## License
+AdamRMS utiliza una arquitectura server-rendered moderna:
 
-AdamRMS is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+### 🌐 Web Pages
+
+- PHP Controllers
+- Twig Rendering
+- Bootstrap seguro
+
+---
+
+### 📡 API Layer
+
+- API REST JSON
+- OpenAPI Documentation
+- Endpoints protegidos
+
+---
+
+### 🏢 Multi-tenancy
+
+- Instancias independientes
+- Permisos por empresa
+- Usuarios multiempresa
+
+---
+
+### 🔐 Seguridad
+
+- Sistema de autenticación
+- Roles administrativos
+- Soft deletes
+- Gestión segura de sesiones
+
+---
+
+# 📸 Vista previa
+
+<div align="center">
+
+<img width="1000" src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1200&auto=format&fit=crop" />
+
+</div>
+
+---
+
+# 📡 API REST
+
+## 🔗 Integración OpenAPI
+
+La plataforma incluye:
+
+- 📄 API RESTful JSON
+- 🔐 Endpoints protegidos
+- 📊 Integración externa
+- 🧠 Arquitectura modular
+
+---
+
+# ☁️ Self Hosting
+
+## 🐳 Docker Ready
+
+AdamRMS puede ejecutarse mediante:
+
+- Docker
+- Docker Compose
+- GitHub Packages
+- Infraestructura cloud
+
+Compatible con:
+
+- linux/amd64
+- linux/arm64
+
+---
+
+# 🧠 Objetivos del proyecto
+
+## 🎯 Aprender y practicar
+
+- Arquitectura empresarial
+- PHP avanzado
+- Gestión audiovisual
+- Multi-tenancy
+- APIs REST
+- Dockerización
+- DevOps moderno
+
+---
+
+# 🚧 Roadmap
+
+## 🔮 Próximas mejoras
+
+- 📱 Aplicación móvil
+- 🤖 Automatización inteligente
+- 📊 Dashboard analítico
+- 🔔 Notificaciones en tiempo real
+- ☁️ Infraestructura cloud avanzada
+- 🎥 Integración multimedia
+- 📡 WebSockets
+
+---
+
+# 🤝 Contribuciones
+
+Las contribuciones son bienvenidas ❤️
+
+## Cómo contribuir
+
+1. Fork del proyecto
+
+```bash
+git checkout -b feature/nueva-funcionalidad
+```
+
+2. Commit
+
+```bash
+git commit -m "✨ Nueva funcionalidad"
+```
+
+3. Push
+
+```bash
+git push origin feature/nueva-funcionalidad
+```
+
+4. Pull Request 🚀
+
+---
+
+# 👨‍💻 Desarrollador
+
+<div align="center">
+
+## Isai Reyes — Full Stack Developer
+
+Desarrollador apasionado por la creación de plataformas modernas, sistemas administrativos y aplicaciones empresariales escalables 🚀
+
+</div>
+
+---
+
+# 🌟 Apoya el proyecto
+
+⭐ Dale una estrella  
+🍴 Haz fork  
+📢 Comparte el proyecto
+
+---
+
+# 📜 Licencia
+
+Proyecto open source bajo licencia GNU Affero General Public License v3.0 (AGPLv3).
+
+---
+
+<div align="center">
+
+### 🎭 AdamRMS — gestión avanzada de renta audiovisual y producción 🚀
+
+</div>
