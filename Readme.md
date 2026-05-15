@@ -467,6 +467,6 @@ Proyecto open source bajo licencia GNU Affero General Public License v3.0 (AGPLv
 
 <div align="center">
 
-### 🎭 AdamRMS — gestión avanzada de renta audiovisual y producción 🚀
+### 🎭 PlataformaRentaTeatro — gestión avanzada de renta audiovisual y producción 🚀
 
 </div>
