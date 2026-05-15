@@ -1,0 +1,65 @@
+name: Generate API Docs
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Generate OpenAPI docs from PHP source
+    runs-on: ubuntu-latest
+    # Only run for PRs from the same repo (forks don't have push permission)
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: zip, mysqli, intl, gd
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Generate OpenAPI docs
+        shell: php {0}
+        run: |
+          <?php
+          require("vendor/autoload.php");
+          $finder = \Symfony\Component\Finder\Finder::create()->files()->name('*.php')->in('src/api/');
+          $openapi = \OpenApi\Generator::scan($finder, ['logger' => new \Psr\Log\NullLogger()]);
+          $yaml = $openapi->toYaml();
+          file_put_contents('website/static/apiDocs.yaml', $yaml);
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "apiDocs.yaml"
+          path: "website/static/apiDocs.yaml"
+          if-no-files-found: "error"
+          overwrite: "true"
+
+      # Commit updated apiDocs.yaml to the PR branch if it has changed
+      - name: Commit apiDocs.yaml if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add website/static/apiDocs.yaml
+          git diff --staged --quiet || (git commit -m "Update generated API docs" && git push)

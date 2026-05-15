@@ -1,0 +1,316 @@
+{% extends "assets/template.twig" %}
+{% block htmlIncludes %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js" integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap4.min.js" integrity="sha512-OQlawZneA7zzfI6B1n1tjUuo3C5mtYuAWpQdg+iI9mkDoo7iFzTqnQHf+K5ThOWNJ9AbXL4+ZDwH7ykySPQc+A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css" integrity="sha512-PT0RvABaDhDQugEbpNMwgYBCnGCiTZMh9yOzUsJHDgl/dMhD9yjHAwoumnUk3JydV3QTcIkNDuN40CJxik5+WQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+{% endblock %}
+{% block content %}
+	<div class="row">
+		<div class="col-lg-6 offset-lg-3 col-md-12">
+			<div class="alert alert-warning alert-dismissible">
+				<h5><i class="icon fas fa-info"></i> Server-Wide Configuration</h5>
+				You are modifying settings and configuration that affect the whole of the {{ CONFIG.PROJECT_NAME }} Server, including all businesses (instances) running on it. Please be careful when making changes here.
+			</div>
+            <div class="alert alert-warning alert-dismissible" style="border: 0px; margin-bottom: 15px;">
+                <h4><i class="fa fa-exclamation"></i> You have permission to view E-Mail addresses in this list</h4>
+                Please use caution and do not divulge these email addresses as per appropriate privacy policies
+            </div>
+		</div>
+	</div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Users</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-head-fixed" id="userTable" border="0" style="overflow-x: scroll;">
+                        <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Firstname</th>
+                            <th>Lastname</th>
+                            <th>Email</th>
+                            <th>Roles</th>
+                            <th>Instances</th>
+                            <th>Accepted TOS</th>
+                            <th>Last Login</th>
+                            <th>Last Page View</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="overlay" id="loadingoverlay">
+                    <i class="fas fa-sync fa-spin fa-3x"></i>
+                </div>
+            </div>
+        </div>
+        <script>
+            var currentUserId = "{{ USERDATA.users_userid }}";
+            var rootUrl = "{{ CONFIG.ROOTURL }}";
+            var canEditUser = {{ "USERS:EDIT"|serverPermissions ? 'true' : 'false' }};
+            var canLogoutUser = {{ "VIEW-AUDIT-LOG"|serverPermissions ? 'true' : 'false' }};
+            var canSuspendUser = {{ "USERS:EDIT:SUSPEND"|serverPermissions ? 'true' : 'false' }};
+            var canDeleteUser = {{ "USERS:DELETE"|serverPermissions ? 'true' : 'false' }};
+            var canViewSiteAs = {{ "USERS:VIEW_SITE_AS"|serverPermissions ? 'true' : 'false' }};
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                var div = document.createElement('div');
+                div.appendChild(document.createTextNode(text));
+                return div.innerHTML;
+            }
+
+            function parseServerDate(dateStr) {
+                if (!dateStr) return null;
+                if (dateStr instanceof Date) {
+                    return isNaN(dateStr.getTime()) ? null : dateStr;
+                }
+                if (typeof dateStr === 'number' || (/^\d+$/).test(dateStr)) {
+                    var num = Number(dateStr);
+                    if (!isNaN(num)) {
+                        var tsDate = new Date(num);
+                        return isNaN(tsDate.getTime()) ? null : tsDate;
+                    }
+                }
+                var str = String(dateStr);
+                var isoCandidate = str.replace(' ', 'T');
+                var d = new Date(isoCandidate);
+                if (!isNaN(d.getTime())) {
+                    return d;
+                }
+                var m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/.exec(str);
+                if (m) {
+                    var manualDate = new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10), parseInt(m[4], 10), parseInt(m[5], 10), parseInt(m[6], 10));
+                    return isNaN(manualDate.getTime()) ? null : manualDate;
+                }
+                return null;
+            }
+
+            function formatDate(dateStr) {
+                if (!dateStr) return '';
+                var d = parseServerDate(dateStr);
+                if (!d || isNaN(d.getTime())) return '';
+                var day = ('0' + d.getDate()).slice(-2);
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                var month = months[d.getMonth()];
+                var year = d.getFullYear();
+                var hours = d.getHours();
+                var minutes = ('0' + d.getMinutes()).slice(-2);
+                var seconds = ('0' + d.getSeconds()).slice(-2);
+                return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+            }
+
+            $(document).ready(function () {
+                $("#loadingoverlay").hide();
+
+                $('#userTable').DataTable({
+                    "processing": true,
+                    "serverSide": true,
+                    "ajax": {
+                        "url": rootUrl + "/api/server/users.php",
+                        "type": "POST"
+                    },
+                    "searchDelay": 400,
+                    "search": {
+                        "regex": false
+                    },
+                    "columns": [
+                        {
+                            "data": "users_username",
+                            "render": function(data) { return escapeHtml(data); }
+                        },
+                        {
+                            "data": "users_name1",
+                            "render": function(data) { return escapeHtml(data); }
+                        },
+                        {
+                            "data": "users_name2",
+                            "render": function(data) { return escapeHtml(data); }
+                        },
+                        {
+                            "data": null,
+                            "render": function(data) {
+                                var html = escapeHtml(data.users_email);
+                                if (data.users_emailVerified) html += ' <i class="fa fa-check-square-o"></i>';
+                                return html;
+                            }
+                        },
+                        {
+                            "data": "currentPositions",
+                            "orderable": false,
+                            "searchable": false,
+                            "render": function(data, type, row) {
+                                var html = '';
+                                if (row.users_suspended) html += '<span class="badge bg-danger">Suspended</span><br/>';
+                                if (data && data.length > 0) {
+                                    for (var i = 0; i < data.length; i++) {
+                                        var pos = data[i];
+                                        html += escapeHtml(pos.userPositions_displayName || pos.positions_displayName) + '<br/>';
+                                    }
+                                }
+                                return html;
+                            }
+                        },
+                        {
+                            "data": "instances",
+                            "orderable": false,
+                            "searchable": false,
+                            "render": function(data, type, row) {
+                                if (!data || data.length < 1) return '<span class="badge bg-warning">No instances</span>';
+                                var html = '';
+                                var now = Date.now();
+                                for (var i = 0; i < data.length; i++) {
+                                    var inst = data[i];
+                                    var isArchived = false;
+                                    if (inst.userInstances_archived) {
+                                        var archivedDate = parseServerDate(inst.userInstances_archived);
+                                        isArchived = archivedDate ? archivedDate.getTime() <= now : true;
+                                    }
+                                    if (isArchived) {
+                                        html += '<span class="badge bg-danger">Archived</span> ';
+                                    }
+                                    html += escapeHtml(inst.instances_name) + ' (' + escapeHtml(inst.instances_planName) + ') - '
+                                        + escapeHtml(inst.userInstances_label) + ' (' + escapeHtml(inst.instancePositions_displayName) + ')<br/>';
+                                }
+                                return html;
+                            }
+                        },
+                        {
+                            "data": "users_termsAccepted",
+                            "searchable": false,
+                            "render": function(data) { return formatDate(data); }
+                        },
+                        {
+                            "data": "lastLogin",
+                            "orderable": false,
+                            "searchable": false,
+                            "render": function(data) { return formatDate(data); }
+                        },
+                        {
+                            "data": "lastAnalytics",
+                            "orderable": false,
+                            "searchable": false,
+                            "render": function(data) { return formatDate(data); }
+                        },
+                        {
+                            "data": null,
+                            "orderable": false,
+                            "searchable": false,
+                            "render": function(data) {
+                                var uid = String(data.users_userid);
+                                var isSelf = (uid === String(currentUserId));
+                                var html = '<div class="btn-group">';
+                                if (!isSelf) {
+                                    if (canEditUser) {
+                                        html += '<a href="' + rootUrl + '/user.php?id=' + encodeURIComponent(uid) + '" title="Edit user" class="btn btn-default"><i class="fa fa-pencil-alt"></i></a>';
+                                    }
+                                    if (!data.users_suspended && canLogoutUser) {
+                                        html += '<button type="button" title="Log User out on all devices" class="btn btn-danger logoutbutton" data-userid="' + escapeHtml(uid) + '"><i class="fa fa-sign-out-alt"></i></button>';
+                                    }
+                                    if (canSuspendUser) {
+                                        var suspendVal = data.users_suspended ? '0' : '1';
+                                        var btnClass = data.users_suspended ? 'success' : 'danger';
+                                        var btnTitle = data.users_suspended ? 'Un-Suspend user' : 'Suspend user';
+                                        html += '<button type="button" class="btn btn-' + btnClass + ' suspenduser" data-suspendval="' + suspendVal + '" data-userid="' + escapeHtml(uid) + '" title="' + btnTitle + '"><i class="fa fa-times-circle"></i></button>';
+                                    }
+                                    if (canDeleteUser) {
+                                        html += '<button type="button" class="btn btn-danger deleteuser" data-userid="' + escapeHtml(uid) + '" title="Delete User"><i class="fa fa-trash"></i></button>';
+                                    }
+                                    if (canViewSiteAs) {
+                                        html += '<a href="' + rootUrl + '/api/account/viewSiteAs.php?userid=' + encodeURIComponent(uid) + '" title="Login as User"><button type="button" class="btn btn-default"><i class="fa fa-sign-in-alt"></i></button></a>';
+                                    }
+                                }
+                                html += '</div>';
+                                return html;
+                            }
+                        }
+                    ],
+                    "order": [[1, "asc"]],
+                    "paging": true,
+                    "lengthChange": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                    "pageLength": 25,
+                    "createdRow": function(row, data) {
+                        if (data.users_suspended) {
+                            $(row).addClass('danger');
+                        }
+                    }
+                });
+
+                // Event delegation for dynamically rendered buttons
+                {% if "VIEW-AUDIT-LOG"|serverPermissions %}
+                $(document).on("click", ".logoutbutton", function () {
+                    $("#loadingoverlay").show();
+                    $.ajax({
+                        url: rootUrl + "/api/account/destroyTokens.php?userid=" + $(this).data("userid"),
+                        success: function (result) {
+                            if (result == '1') {
+                                $("#loadingoverlay").hide();
+                            } else {
+                                bootbox.alert("Sorry - Operation could not be completed! Please reload the page")
+                            }
+                        }
+                    });
+                });
+                {% endif %}
+                {% if "USERS:EDIT:SUSPEND"|serverPermissions %}
+                $(document).on("click", ".suspenduser", function () {
+                    $("#loadingoverlay").show();
+                    var table = $('#userTable').DataTable();
+                    $.ajax({
+                        url: rootUrl + "/api/account/suspend.php?userid=" + $(this).data("userid") + '&suspendval=' + $(this).data("suspendval"),
+                        success: function (result) {
+                            if (result == '1') {
+                                bootbox.alert("Success", function () {
+                                    table.ajax.reload(null, false);
+                                    $("#loadingoverlay").hide();
+                                });
+                            } else {
+                                bootbox.alert("Sorry - Operation could not be completed! Please reload the page", function () {
+                                    table.ajax.reload(null, false);
+                                    $("#loadingoverlay").hide();
+                                });
+                            }
+                        }
+                    });
+                });
+                {% endif %}
+                {% if "USERS:DELETE"|serverPermissions %}
+                $(document).on("click", ".deleteuser", function () {
+                    var userid = $(this).data("userid");
+                    bootbox.confirm({
+                        message: "Are you sure you wish to delete this user?",
+                        buttons: {
+                            confirm: {
+                                label: 'Yes',
+                                className: 'btn-danger'
+                            },
+                            cancel: {
+                                label: 'No',
+                                className: 'btn-success'
+                            }
+                        },
+                        callback: function (result) {
+                            if (result) {
+                                $("#loadingoverlay").show();
+                                ajaxcall("account/softDelete.php", {"users_userid": userid}, function (data) {
+                                    var table = $('#userTable').DataTable();
+                                    table.ajax.reload(null, false);
+                                    $("#loadingoverlay").hide();
+                                });
+                            }
+                        }
+                    });
+                });
+                {% endif %}
+            });
+        </script>
+    </div>
+{% endblock %}

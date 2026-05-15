@@ -1,0 +1,50 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "17:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 0
+    groups:
+       actions-dependencies:
+          patterns:
+            - "*"
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "17:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 0
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "aws-sdk-php"
+    groups:
+       composer-dependencies:
+          patterns:
+            - "*"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "17:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 0
+    groups:
+       docker-dependencies:
+          patterns:
+            - "*"
+  - package-ecosystem: "npm"
+    directory: "/website"
+    schedule:
+      interval: "monthly"
+      time: "17:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 0
+    groups:
+       website-dependencies:
+          patterns:
+            - "*"

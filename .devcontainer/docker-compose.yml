@@ -1,0 +1,111 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Update 'VARIANT' to pick a version of PHP version: 8, 8.3, 8.1, 8.0, 7, 7.4
+        # Append -bullseye or -buster to pin to an OS version.
+        # Use -bullseye variants on local arm64/Apple Silicon.
+        VARIANT: "8.3"
+        NODE_VERSION: "none"
+
+    volumes:
+      - ..:/workspace:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+    
+    # Uncomment the next line to use a non-root user for all processes.
+    # user: vscode
+    depends_on:
+      - db
+      - s3filestore
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+    environment:
+      - DB_HOSTNAME=db
+      - DB_DATABASE=db
+      - DB_USERNAME=user
+      - DB_PASSWORD=pass
+      - DB_PORT=3306
+      - DEV_MODE=true
+      - CONFIG_ROOTURL=http://localhost:8080
+      - CONFIG_AWS_S3_KEY=key-id-of-top-secret-key
+      - CONFIG_AWS_S3_SECRET=topsecretkeydonottellanyone
+      - CONFIG_AWS_S3_BUCKET=localtestingbucket
+      - CONFIG_AWS_S3_BROWSER_ENDPOINT=http://localhost:8081/localtestingbucket
+      - CONFIG_AWS_S3_SERVER_ENDPOINT=http://s3filestore:8081/localtestingbucket
+      - CONFIG_AWS_S3_ENDPOINT_PATHSTYLE=Enabled
+      - CONFIG_AWS_S3_REGION=devcontainer-east-1
+      - CONFIG_AWS_CLOUDFRONT_ENDPOINT=http://localhost:8081/localtestingbucket
+      - CONFIG_EMAILS_ENABLED=true
+      - CONFIG_EMAILS_PROVIDER=SMTP
+      - CONFIG_EMAILS_FROM_EMAIL=adamrms@devcontainer.local
+      - CONFIG_EMAILS_SMTP_SERVER=mailpit
+      - CONFIG_EMAILS_SMTP_PORT=1025
+  db:
+    image: index.docker.io/mysql/mysql-server:8.0
+    command: --default-authentication-plugin=mysql_native_password --innodb-thread-concurrency=0 --sort_buffer_size=512K
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+      - /etc/localtime:/etc/localtime
+      - ./docker/mysql:/etc/mysql/conf.d
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=db
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+  s3filestore:
+    image: adobe/s3mock:3.5.2
+    restart: unless-stopped
+    ports:
+      - 8081:9090
+    volumes:
+      - ./../s3files:/s3files
+    environment:
+      - initialBuckets=localtestingbucket
+      - retainFilesOnExit=true
+      - root=/s3files
+      - trace=false
+      - debug=false
+      - validKmsKeys=arn:aws:kms:devcontainer-east-1:1234567890:topsecretkeydonottellanyone/key-id-of-top-secret-key
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - 8082:80
+    environment:
+      - PMA_ARBITRARY=0
+      - PMA_HOST=db
+      - PMA_USER=user
+      - PMA_PASSWORD=pass
+      - PMA_PORT=3306
+  mailpit:
+    image: axllent/mailpit:v1.20
+    container_name: mailpit
+    restart: unless-stopped
+    volumes:
+      - email_data:/data
+    ports:
+      - 1025:1025
+      - 8083:8025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_LABEL: "AdamRMS Dev Mailpit"
+
+volumes:
+  db_data: null
+  email_data: null

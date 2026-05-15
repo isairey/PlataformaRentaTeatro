@@ -1,0 +1,78 @@
+{
+  "name": "AdamRMS",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+
+  // Configure tool-specific properties.
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.formatOnSaveMode": "modificationsIfAvailable",
+        "[php]": {
+          "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+          "editor.formatOnSave": true
+        },
+        "[twig]": {
+          "editor.defaultFormatter": null,
+          "editor.formatOnSave": false,
+          "editor.formatOnPaste": false
+        },
+        "emmet.includeLanguages": {
+          "twig": "html"
+        }
+      },
+      "extensions": [
+        "xdebug.php-debug",
+        "bmewburn.vscode-intelephense-client",
+        "mrmlnc.vscode-apache",
+        "esbenp.prettier-vscode",
+        "mblode.twig-language-2",
+        "github.vscode-github-actions",
+        "DEVSENSE.profiler-php-vscode",
+        "DEVSENSE.phptools-vscode"
+      ]
+    }
+  },
+
+  "shutdownAction": "stopCompose",
+
+  "forwardPorts": [
+    8080,
+    "db:3306",
+    "s3filestore:8081",
+    "phpmyadmin:8082",
+    "mailpit:8083"
+  ],
+
+  "postCreateCommand": "composer update",
+
+  "postStartCommand": "php vendor/bin/phinx migrate && php vendor/bin/phinx seed:run",
+
+  "remoteUser": "vscode",
+  "portsAttributes": {
+    "8080": {
+      "label": "PHP Web Server",
+      "onAutoForward": "ignore",
+      "protocol": "http"
+    },
+    "8081": {
+      "label": "S3 Emulator (s3mock)"
+    },
+    "8082": {
+      "label": "phpMyAdmin",
+      "protocol": "https"
+    },
+    "8083": {
+      "label": "Mailpit (Emails)",
+      "protocol": "http"
+    },
+    "3306": {
+      "label": "MySQL"
+    }
+  }
+}

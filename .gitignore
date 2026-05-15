@@ -1,0 +1,26 @@
+.DS_Store
+.vagrant
+*.swp
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+vendor/
+node_modules/
+
+.idea/
+**/.idea
+
+/s3files/
+
+.qodo
+
+# Website (Docusaurus)
+/website/build
+/website/.docusaurus
+/website/.cache-loader
+/website/api-docs
+npm-debug.log*
